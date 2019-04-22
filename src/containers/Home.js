@@ -1,7 +1,11 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { Write, MemoList } from 'components';
-import { memoPostRequest, memoListRequest } from 'actions/memo';
+import { 
+    memoPostRequest, 
+    memoListRequest, 
+    memoEditRequest 
+} from 'actions/memo';
 
 class Home extends React.Component {
 
@@ -10,6 +14,7 @@ class Home extends React.Component {
         this.handlePost = this.handlePost.bind(this);
         this.loadNewMemo = this.loadNewMemo.bind(this);
         this.loadOldMemo = this.loadOldMemo.bind(this);
+        this.handleEdit = this.handleEdit.bind(this);
 
         this.state = {
             loadingState: false
@@ -26,24 +31,17 @@ class Home extends React.Component {
             );
         };
 
-        this.props.memoListRequest(true).then(
-            () => {
-                // BEGIN NEW MEMO LOADING LOOP
-                loadMemoLoop();
-            }
-        );
-
         $(window).scroll(() => {
             // WHEN HEIGHT UNDER SCROLLBOTTOM IS LESS THEN 250
             if ($(document).height() - $(window).height() - $(window).scrollTop() < 250) {
-                if(!this.state.loadingState){
+                if (!this.state.loadingState) {
                     this.loadOldMemo();
                     this.setState({
                         loadingState: true
                     });
                 }
             } else {
-                if(this.state.loadingState){
+                if (this.state.loadingState) {
                     this.setState({
                         loadingState: false
                     });
@@ -53,18 +51,18 @@ class Home extends React.Component {
 
         const loadUntilScrollable = () => {
             // IF THE SCROLLBAR DOES NOT EXIST,
-            if($("body").height() < $(window).height()) {
+            if ($("body").height() < $(window).height()) {
                 this.loadOldMemo().then(
                     () => {
                         // DO THIS RECURSIVELY UNLESS IT'S LAST PAGE
-                        if(!this.props.isLast) {
+                        if (!this.props.isLast) {
                             loadUntilScrollable();
                         }
                     }
                 );
             }
         };
-        
+
         this.props.memoListRequest(true).then(
             () => {
                 // BEGIN NEW MEMO LOADING LOOP
@@ -72,7 +70,7 @@ class Home extends React.Component {
                 loadMemoLoop();
             }
         );
-        
+
     }
 
     componentWillUnmount() {
@@ -85,21 +83,21 @@ class Home extends React.Component {
 
     loadOldMemo() {
         // CANCEL IF USER IS READING THE LAST PAGE
-        if(this.props.isLast) {
+        if (this.props.isLast) {
             return new Promise(
-                (resolve, reject)=> {
+                (resolve, reject) => {
                     resolve();
                 }
             );
         }
-        
+
         // GET ID OF THE MEMO AT THE BOTTOM
         let lastId = this.props.memoData[this.props.memoData.length - 1]._id;
-        
+
         // START REQUEST
         return this.props.memoListRequest(false, 'old', lastId).then(() => {
             // IF IT IS LAST PAGE, NOTIFY
-            if(this.props.isLast) {
+            if (this.props.isLast) {
                 Materialize.toast('You are reading the last page', 2000);
             }
         });
@@ -160,6 +158,43 @@ class Home extends React.Component {
         )
     }
 
+    handleEdit(id, index, contents) {
+        return this.props.memoEditRequest(id, index, contents).then(
+            () => {
+                if(this.props.editStatus.status === "SUCCESS"){
+                    Materialize.toast('Success!',2000);
+                }else{
+                    /*
+                        ERROR CODES
+                            1: INVALID ID,
+                            2: EMPTY CONTENTS
+                            3: NOT LOGGED IN
+                            4: NO RESOURCE
+                            5: PERMISSION FAILURE
+                    */
+                   let errorMessage = [
+                    'Something broke',
+                    'Please write soemthing',
+                    'You are not logged in',
+                    'That memo does not exist anymore',
+                    'You do not have permission'
+                    ];
+                    
+                    let error = this.props.editStatus.error;
+                    
+                    // NOTIFY ERROR
+                    let $toastContent = $('<span style="color: #FFB4BA">' + errorMessage[error - 1] + '</span>');
+                    Materialize.toast($toastContent, 2000);
+                
+                    // IF NOT LOGGED IN, REFRESH THE PAGE AFTER 2 SECONDS
+                    if(error === 3) {
+                        setTimeout(()=> {location.reload(false)}, 2000);
+                    }
+                }
+            }
+        )
+    }
+
 
     render() {
         const write = (<Write onPost={this.handlePost} />);
@@ -167,7 +202,11 @@ class Home extends React.Component {
         return (
             <div className="wrapper">
                 {this.props.isLoggedIn ? write : undefined}
-                <MemoList data={this.props.memoData} currentUser={this.props.currentUser} />
+                <MemoList 
+                    data={this.props.memoData} 
+                    currentUser={this.props.currentUser}
+                    onEdit={this.handleEdit}
+                />
             </div>
         );
     }
@@ -177,10 +216,11 @@ const mapStateToProps = (state) => {
     return {
         isLoggedIn: state.authentication.status.isLoggedIn,
         currentUser: state.authentication.status.currentUser,
-        postStatus: state.memo.post,        
+        postStatus: state.memo.post,
         memoData: state.memo.list.data,
         listStatus: state.memo.list.status,
-        isLast: state.memo.list.isLast
+        isLast: state.memo.list.isLast,
+        editStatus: state.memo.edit
     };
 };
 
@@ -191,6 +231,9 @@ const mapDispatchToProps = (dispatch) => {
         },
         memoListRequest: (isInitial, listType, id, username) => {
             return dispatch(memoListRequest(isInitial, listType, id, username))
+        },
+        memoEditRequest: (id, index, contents) => {
+            return dispatch(memoEditRequest(id, index, contents));
         }
     };
 };

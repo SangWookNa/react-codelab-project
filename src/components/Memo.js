@@ -3,10 +3,45 @@ import TimeAgo from 'react-timeago';
 
 class Memo extends React.Component {
 
+    constructor(props) {
+        super(props);
+        this.state = {
+            editMode: false,
+            value : props.data.contents
+        };
+
+        this.handleChange = this.handleChange.bind(this);
+        this.toggleEdit = this.toggleEdit.bind(this);
+    }
+
+    toggleEdit() {
+        if(this.state.editMode) {
+            let id = this.props.data._id;
+            let index = this.props.index;
+            let contents = this.state.value;
+            
+            this.props.onEdit(id, index, contents).then(() => {
+                this.setState({
+                    editMode: !this.state.editMode
+                });
+            })
+        } else {
+            this.setState({
+                editMode: !this.state.editMode
+            });   
+        }
+    }
+
+    handleChange(e) {
+        this.setState({
+            value: e.target.value
+        });
+    }
+
     componentDidUpdate() {
         // WHEN COMPONENT UPDATES, INITIALIZE DROPDOWN
         // (TRIGGERED WHEN LOGGED IN)
-        $('#dropdown-button-'+this.props.data._id).dropdown({
+        $('#dropdown-button-' + this.props.data._id).dropdown({
             belowOrigin: true // Displays dropdown below the button
         });
     }
@@ -14,7 +49,7 @@ class Memo extends React.Component {
     componentDidMount() {
         // WHEN COMPONENT MOUNTS, INITIALIZE DROPDOWN
         // (TRIGGERED WHEN REFRESHED)
-        $('#dropdown-button-'+this.props.data._id).dropdown({
+        $('#dropdown-button-' + this.props.data._id).dropdown({
             belowOrigin: true // Displays dropdown below the button
         });
     }
@@ -22,6 +57,11 @@ class Memo extends React.Component {
     render() {
 
         const { data, ownership } = this.props;
+
+        // EDITED info
+        let editedInfo = (
+            <span style={{color: '#AAB5BC'}}> · Edited <TimeAgo date={this.props.data.date.edited} live={true}/></span>
+        );
 
         const dropDownMenu = (
             <div className="option-button">
@@ -31,7 +71,7 @@ class Memo extends React.Component {
                     <i className="material-icons icon-button">more_vert</i>
                 </a>
                 <ul id={`dropdown-${data._id}`} className='dropdown-content'>
-                    <li><a>Edit</a></li>
+                    <li><a onClick={this.toggleEdit}>Edit</a></li>
                     <li><a>Remove</a></li>
                 </ul>
             </div>
@@ -40,8 +80,9 @@ class Memo extends React.Component {
         const memoView = (
             <div className="card">
                 <div className="info">
-                    <a className="username">{data.writer}</a> wrote a log · <TimeAgo date={data.date.created} />
-                    {ownership ? dropDownMenu : undefined}
+                    <a className="username">{this.props.data.writer}</a> wrote a log · <TimeAgo date={this.props.data.date.created}/> 
+                    { this.props.data.is_edited ? editedInfo : undefined }
+                    { this.props.ownership ? dropDownMenu : undefined }
                 </div>
                 <div className="card-content">
                     {data.contents}
@@ -53,9 +94,25 @@ class Memo extends React.Component {
             </div>
         )
 
+        const editView = (
+            <div className="write">
+                <div className="card">
+                    <div className="card-content">
+                        <textarea
+                            className="materialize-textarea"
+                            value={this.state.value}
+                            onChange={this.handleChange}></textarea>
+                    </div>
+                    <div className="card-action">
+                        <a onClick={this.toggleEdit}>OK</a>
+                    </div>
+                </div>
+            </div>
+        )
+
         return (
             <div className="container memo">
-                {memoView}
+                {this.state.editMode ? editView : memoView}
             </div>
         );
     }
@@ -63,7 +120,9 @@ class Memo extends React.Component {
 
 Memo.propTypes = {
     data: React.PropTypes.object,
-    ownership: React.PropTypes.bool
+    ownership: React.PropTypes.bool,
+    onEdit: React.PropTypes.func,
+    index: React.PropTypes.number
 };
 
 Memo.defaultProps = {
@@ -78,7 +137,11 @@ Memo.defaultProps = {
         },
         starred: []
     },
-    ownership: true
+    ownership: true,
+    onEdit: (id, index, contents) => {
+        console.error('onEdit function not defined');
+    },
+    index: -1
 }
 
 export default Memo;

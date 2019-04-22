@@ -59,6 +59,7 @@ router.post('/', (req, res) => {
  *      5: PERMISSION FAILURE
  */
 router.put('/:id', (req, res) => {
+
     //CHECK MEMO ID VALIDITY
     if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
         return res.status(400).json({
@@ -112,6 +113,7 @@ router.put('/:id', (req, res) => {
 
         //MODIFY AND SAVE IN DATABASE
         memo.contetns = req.body.contents;
+        
         memo.date.edited = new Date();
         memo.is_edited = true;
 
