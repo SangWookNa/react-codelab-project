@@ -44,6 +44,9 @@ var app = (0, _express2.default)(); // HTTP REQUEST LOGGER
 var port = 3000;
 var devPort = 4000;
 
+app.use((0, _morgan2.default)('dev'));
+app.use(_bodyParser2.default.json());
+
 /** mongodb connection */
 var db = _mongoose2.default.connection;
 db.on('error', console.error);
@@ -51,7 +54,14 @@ db.once('open', function () {
     console.log('Connected to mongodb server');
 });
 // mongoose.connect('mongodb://username:password@host:port/database=');
-_mongoose2.default.connect('mongodb://localhost/codelab');
+_mongoose2.default.connect('mongodb://localhost:27017/codelab');
+
+/* use session */
+app.use((0, _expressSession2.default)({
+    secret: 'CodeLab1$1$234',
+    resave: false,
+    saveUninitialized: true
+}));
 
 if (process.env.NODE_ENV == 'development') {
     console.log('Server is running on development mode');
@@ -67,6 +77,11 @@ if (process.env.NODE_ENV == 'development') {
 
 app.use('/api', _routes2.default);
 app.use('/', _express2.default.static(_path2.default.join(__dirname, './../public')));
+
+/** support client-side routing */
+app.get('*', function (req, res) {
+    res.sendFile(_path2.default.resolve(__dirname, './../public/index.html'));
+});
 
 app.use((0, _morgan2.default)('dev'));
 app.use(_bodyParser2.default.json());

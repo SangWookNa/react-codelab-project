@@ -15,7 +15,7 @@ router.post('/signup', (req, res) => {
     // CHECK USERNAME FORMAT
     let usernameRegex = /^[a-z0-9]+$/;
 
-    if(!usernameRegex.test(req.body.username)) {
+    if (!usernameRegex.test(req.body.username)) {
         return res.status(400).json({
             error: "BAD USERNAME",
             code: 1
@@ -23,17 +23,17 @@ router.post('/signup', (req, res) => {
     }
 
     // CHECK PASS LENGTH
-    if(req.body.password.length < 4 || typeof req.body.password !== "string") {
+    if (req.body.password.length < 4 || typeof req.body.password !== "string") {
         return res.status(400).json({
             error: "BAD PASSWORD",
             code: 2
         });
     }
-    
+
     // CHECK USER EXISTANCE
     Account.findOne({ username: req.body.username }, (err, exists) => {
         if (err) throw err;
-        if(exists){
+        if (exists) {
             return res.status(409).json({
                 error: "USERNAME EXISTS",
                 code: 3
@@ -49,8 +49,8 @@ router.post('/signup', (req, res) => {
         account.password = account.generateHash(account.password);
 
         // SAVE IN THE DATABASE
-        account.save( err => {
-            if(err) throw err;
+        account.save(err => {
+            if (err) throw err;
             return res.json({ success: true });
         });
     });
@@ -128,4 +128,27 @@ router.post('/logout', (req, res) => {
     return res.json({ success: true });
 });
 
+/**
+ * SEARCH USER: GET /api/account/search/:username
+ */
+router.get('/search/:username', (req, res) => {
+    //SEARCH USERNAMES THAT STARTS WITH GIVEN KEYWORD USING REGEX
+    var re = new RegExp('^' + req.params.username);
+
+    Account.find({ username: { $regex: re } }, { _id: false, username: true })
+    .limit(5)
+    .sort({usernam: 1})
+    .exec((err,accounts) =>{
+        if(err) throw err;
+        res.json(accounts);
+    });
+});
+
+//EMPTY SEARCH REQUEST: GET /api/account/search
+router.get('/search', (req,res) =>{
+    res.json([]);
+});
+
 export default router;
+
+

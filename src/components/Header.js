@@ -1,7 +1,26 @@
 import React from 'react';
 import { Link } from 'react-router';
+import { Search } from 'components';
+import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
 
 class Header extends React.Component {
+
+    constructor(props){
+        super(props);
+
+        this.state = {
+            search : false
+        }
+
+        this.toggleSearch = this.toggleSearch.bind(this);
+    }
+
+    toggleSearch(){
+        this.setState({
+            search: !this.state.search
+        });        
+    }  
+    
     render() {
 
         const loginButton = (
@@ -20,36 +39,51 @@ class Header extends React.Component {
             </li>
         );
 
+        const searchView = <Search onClose = {this.toggleSearch}
+                                   onSearch = {this.props.onSearch}/>;
 
         return (
-            <nav>
-                <div className="nav-wrapper blue darken-1">
-                    {/* <a className="brand-logo center">MEMOPAD</a> */}
-                    <Link to="/" className="brand-logo center">MEMOPAD</Link>
+            <div>
+                <nav>
+                    <div className="nav-wrapper blue darken-1">
+                        <Link to="/" className="brand-logo center">MEMOPAD</Link>
 
-                    <ul>
-                        <li><a><i className="material-icons">search</i></a></li>
-                    </ul>
-
-                    <div className="right">
                         <ul>
-                            {this.props.isLoggedIn ? logoutButton : loginButton}
+                            <li><a onClick = {this.toggleSearch}><i className="material-icons">search</i></a></li>
                         </ul>
+
+                        <div className="right">
+                            <ul>
+                                {this.props.isLoggedIn ? logoutButton : loginButton}
+                            </ul>
+                        </div>
                     </div>
-                </div>
-            </nav>
+                </nav>
+                    <ReactCSSTransitionGroup 
+                        transitionName="search" 
+                        transitionEnterTimeout={300} 
+                        transitionLeaveTimeout={300}>
+                        {this.state.search ? searchView : undefined}
+                    </ReactCSSTransitionGroup>
+            </div>
         );
     }
 }
 
 Header.PropTypes = {
     isLoggedIn: React.PropTypes.bool,
-    onLogout: React.PropTypes.func
+    onLogout: React.PropTypes.func,
+    onClose: React.PropTypes.func,
+    onSearch: React.PropTypes.func,
+    usernames: React.PropTypes.array
 };
 
 Header.defaultProps = {
     isLoggedIn: false,
-    onLogout: () => { console.error("logout function not defined"); }
+    onLogout: () => { console.error("logout function not defined"); },
+    onClose: () => { console.error("onClose function not defined"); },
+    onSearch: () => { console.error("onSearch function not defined"); },
+    usernames: []
 };
 
 export default Header;

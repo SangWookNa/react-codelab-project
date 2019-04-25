@@ -28,14 +28,14 @@ router.post('/signup', function (req, res) {
     // CHECK USERNAME FORMAT
     var usernameRegex = /^[a-z0-9]+$/;
 
-    if (!usernameRegex.text(req.body.username)) {
+    if (!usernameRegex.test(req.body.username)) {
         return res.status(400).json({
             error: "BAD USERNAME",
             code: 1
         });
     }
 
-    //CHECK PASS LENGTH
+    // CHECK PASS LENGTH
     if (req.body.password.length < 4 || typeof req.body.password !== "string") {
         return res.status(400).json({
             error: "BAD PASSWORD",
@@ -61,7 +61,7 @@ router.post('/signup', function (req, res) {
 
         account.password = account.generateHash(account.password);
 
-        //SAVE IN THE DATABASE
+        // SAVE IN THE DATABASE
         account.save(function (err) {
             if (err) throw err;
             return res.json({ success: true });
@@ -103,7 +103,7 @@ router.post('/signin', function (req, res) {
                 code: 1
             });
         }
-
+        req.session;
         // ALTER SESSION
         var session = req.session;
         session.loginInfo = {

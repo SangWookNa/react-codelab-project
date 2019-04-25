@@ -46,13 +46,13 @@ import api from './routes';
 app.use('/api', api);
 app.use('/', express.static(path.join(__dirname, './../public')));
 
+app.use(morgan('dev'));
+app.use(bodyParser.json());
+
 /** support client-side routing */
 app.get('*', (req, res)=>{
     res.sendFile(path.resolve(__dirname, './../public/index.html'));
 })
-
-app.use(morgan('dev'));
-app.use(bodyParser.json());
 
 /** handle error */
 app.use(function (err, req, res, next) {

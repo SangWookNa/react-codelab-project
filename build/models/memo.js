@@ -21,6 +21,8 @@ var Memo = new Schema({
         edited: { type: Date, default: Date.now }
     },
     is_edited: { type: Boolean, default: false }
+}, {
+    usePushEach: true
 });
 
 exports.default = _mongoose2.default.model('memo', Memo);

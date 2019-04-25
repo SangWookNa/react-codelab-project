@@ -1,7 +1,7 @@
 import React from 'react';
 import { Header } from 'components';
 import { connect } from 'react-redux';
-import { getStatusRequest, logoutRequest } from 'actions/authentication';
+import { getStatusRequest, logoutRequest, searchRequest } from 'actions/authentication';
 
 class App extends React.Component {
 
@@ -75,7 +75,10 @@ class App extends React.Component {
         let isAuth = re.test(this.props.location.pathname);
         return (
             <div>
-                {isAuth ? undefined : <Header isLoggedIn={this.props.status.isLoggedIn} onLogout={this.handleLogout} />}
+                {isAuth ? undefined : <Header 
+                                        isLoggedIn={this.props.status.isLoggedIn} 
+                                        onLogout={this.handleLogout} 
+                                        onSearch={this.handleUserSearch}/>}
                 {this.props.children}
             </div>
         );
@@ -84,7 +87,8 @@ class App extends React.Component {
 
 const mapStateToProps = (state) => {
     return {
-        status: state.authentication.status
+        status: state.authentication.status,
+        searchStatus: state.search
     };
 };
 
@@ -95,6 +99,9 @@ const mapDispatchToProps = (dispatch) => {
         },
         logoutRequest: () => {
             return dispatch(logoutRequest());
+        },
+        searchRequest: (username) => {
+            return dispatch(searchRequest(username));
         }
     };
 };
