@@ -40,7 +40,8 @@ class Header extends React.Component {
         );
 
         const searchView = <Search onClose = {this.toggleSearch}
-                                   onSearch = {this.props.onSearch}/>;
+                                   onSearch = {this.props.onSearch}
+                                   usernames = {this.props.usernames}/>;
 
         return (
             <div>

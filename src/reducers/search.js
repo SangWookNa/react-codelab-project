@@ -19,11 +19,9 @@ export default function search(state, action) {
                 
             });
         case types.SEARCH_SUCCESS:
-            
                 return update(state, {
-                   
                         status: { $set: 'SUCCESS' },
-                        usernames: { $set: action.username }
+                        usernames: { $set: action.usernames }
                     
                 })
             

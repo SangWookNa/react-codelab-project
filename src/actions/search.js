@@ -11,10 +11,10 @@ import axios from 'axios';
 /**SEARCH */
 export function searchRequest(username) {
     return (dispatch) => {
-
+        
         dispatch(search());
 
-        let url = '/api/search';
+        let url = '/api/account/search';
 
         if (typeof username !== "undefined") {
 
@@ -36,10 +36,10 @@ export function search() {
     };
 }
 
-export function searchSuccess(username) {
+export function searchSuccess(usernames) {
     return {
         type: SEARCH_SUCCESS,
-        username
+        usernames
     };
 }
 

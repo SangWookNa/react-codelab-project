@@ -1,13 +1,15 @@
 import React from 'react';
 import { Header } from 'components';
 import { connect } from 'react-redux';
-import { getStatusRequest, logoutRequest, searchRequest } from 'actions/authentication';
+import { getStatusRequest, logoutRequest } from 'actions/authentication';
+import { searchRequest } from 'actions/search';
 
 class App extends React.Component {
 
     constructor(props) {
         super(props);
         this.handleLogout = this.handleLogout.bind(this);
+        this.handleUserSearch = this.handleUserSearch.bind(this);
     }
 
     handleLogout() {
@@ -24,6 +26,10 @@ class App extends React.Component {
                 document.cookie = 'key=' + btoa(JSON.stringify(loginData));
             }
         );
+    }
+    
+    handleUserSearch(username){
+        return this.props.searchRequest(username)
     }
 
     componentDidMount() {
@@ -50,7 +56,6 @@ class App extends React.Component {
         //check whether this cookie is valid or not
         this.props.getStatusRequest().then(
             () => {
-                console.log(this.props.status);
                 //if session is not valid
                 if (!this.props.status.valid) {
                     //logout the session
@@ -78,7 +83,8 @@ class App extends React.Component {
                 {isAuth ? undefined : <Header 
                                         isLoggedIn={this.props.status.isLoggedIn} 
                                         onLogout={this.handleLogout} 
-                                        onSearch={this.handleUserSearch}/>}
+                                        onSearch={this.handleUserSearch}
+                                        usernames={this.props.searchStatus.usernames}/>}
                 {this.props.children}
             </div>
         );

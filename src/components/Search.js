@@ -45,7 +45,7 @@ class Search extends React.Component {
     }
 
     handleKeyDown(e) {
-        
+        console.log(this.props.usernames);
         //IF PRESSED ENTER, TRIGGER TO NAVIGATE TO THE FIRST USER SHOWN
         if (e.keyCode === 13) {
             if (this.props.usernames.length > 0) {
@@ -57,7 +57,10 @@ class Search extends React.Component {
 
     render() {
         const mapDataToLinks = (data) => {
-
+            return data.map((userList, i) => {
+                return ( <Link key = {i} to={`/wall/${userList.username}`} >{userList.username}</Link>
+                    );
+            });
         };
         return (
             <div className="search-screen white-text">
