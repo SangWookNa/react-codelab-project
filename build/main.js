@@ -78,13 +78,13 @@ if (process.env.NODE_ENV == 'development') {
 app.use('/api', _routes2.default);
 app.use('/', _express2.default.static(_path2.default.join(__dirname, './../public')));
 
+app.use((0, _morgan2.default)('dev'));
+app.use(_bodyParser2.default.json());
+
 /** support client-side routing */
 app.get('*', function (req, res) {
     res.sendFile(_path2.default.resolve(__dirname, './../public/index.html'));
 });
-
-app.use((0, _morgan2.default)('dev'));
-app.use(_bodyParser2.default.json());
 
 /** handle error */
 app.use(function (err, req, res, next) {

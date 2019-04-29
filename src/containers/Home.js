@@ -86,7 +86,7 @@ class Home extends React.Component {
 
     componentDidUpdate(prevProps, prevState) {
         if (this.props.username !== prevProps.username) {
-            this.componentWillMount();
+            this.componentWillUnmount();
             this.componentDidMount();
         }
     }

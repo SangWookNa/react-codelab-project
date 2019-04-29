@@ -12,7 +12,7 @@ class Search extends React.Component {
         this.handleClose = this.handleClose.bind(this);
         this.handleChange = this.handleChange.bind(this);
         this.handleSearch = this.handleSearch.bind(this);
-        this.handlekeyDown = this.handleKeyDown.bind(this);
+        this.handleKeyDown = this.handleKeyDown.bind(this);
 
         //LISTEN ESC KEY, CLOSE IF PRESSED
         const listenEscKey = (evt) => {
@@ -45,21 +45,22 @@ class Search extends React.Component {
     }
 
     handleKeyDown(e) {
-        console.log(this.props.usernames);
+
         //IF PRESSED ENTER, TRIGGER TO NAVIGATE TO THE FIRST USER SHOWN
         if (e.keyCode === 13) {
             if (this.props.usernames.length > 0) {
-                browserHistory.push('/wall' + this.props.usernames[0].username);
+                browserHistory.push('/wall/' + this.props.usernames[0].username);
                 this.handleClose();
             }
         }
     }
 
     render() {
+        
         const mapDataToLinks = (data) => {
             return data.map((userList, i) => {
-                return ( <Link key = {i} to={`/wall/${userList.username}`} >{userList.username}</Link>
-                    );
+                return ( <Link onClick={this.handleClose} key = {i} to={`/wall/${userList.username}`} >{userList.username}</Link>
+                    )
             });
         };
         return (
